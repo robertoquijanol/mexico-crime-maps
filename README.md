@@ -15,7 +15,7 @@
 # homicidios_100k.Rmd
 
 - CSV with official crime data is cleaned and organized.
-- Homicide rate per 100,000 population is included by using total homicide count and population data (INEGI)
+- Homicide rate per 100,000 population is included by using total homicide count and population data (INEGI).
 - Parsed data is plotted into different maps.
 - The main product of the script is an interactive map displaying homicide rate per 100,000 population.
 
