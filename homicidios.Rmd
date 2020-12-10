@@ -1,0 +1,122 @@
+---
+title: "mexico mapas"
+author: "Roberto Quijano"
+date: "11/26/2020"
+output: html_document
+---
+
+
+```{r}
+#libraries needed to map
+
+library(sf)
+library(ggplot2)
+library(tmap)
+library(tmaptools)
+library(leaflet)
+library(dplyr)
+
+
+
+
+```
+
+```{r}
+options(scipen = 999)
+
+#leer incidencia delictiva
+mxdata <- read.csv("IDEFC_NM_oct2020.csv", stringsAsFactors = FALSE)
+
+#leer mexstates.shp
+mxmap <- st_read("mexico_shp/mexstates.shp", stringsAsFactors=FALSE)
+
+#filtrar solo 2020 y homicidios dolosos
+homicidios_2020 <- subset(mxdata, mxdata$Año == 2020 & mxdata$Subtipo.de.delito == 'Homicidio doloso')
+
+#reemplazar NA con 0
+homicidios_2020[is.na(homicidios_2020)] <- 0
+
+# Total por 2020
+homicidios_2020$Total <- rowSums(sapply(homicidios_2020[,8:19], as.numeric))
+
+#quitar meses, dejar solo total
+homicidios_2020 <- homicidios_2020[-c(8:19)]
+
+#consolidar solo una modalidad de homicidio doloso
+homicidios_2020 <- homicidios_2020 %>% group_by(Año, Clave_Ent, Entidad, Subtipo.de.delito) %>% summarise(Total=sum(Total))
+
+
+#agregar clave por entidad de GIS
+homicidios_2020$FIPS_ADMIN <- c("MX01", "MX02", "MX03", "MX04", "MX07", "MX08", "MX05", "MX06", "MX09", "MX10", "MX11", "MX12", "MX13", "MX14", "MX15", "MX16", "MX17", "MX18", "MX19", "MX20", "MX21", "MX22", "MX23", "MX24", "MX25", "MX26", "MX27", "MX28", "MX29", "MX30", "MX31", "MX32")
+
+
+
+
+
+```
+
+
+```{r}
+
+#juntar homicidios2020 con mxmap
+map_and_data <- inner_join(homicidios_2020, mxmap)
+
+map_and_data <- tibble(map_and_data)
+
+
+str(map_and_data)
+
+#Mexico shp
+ggplot(data = map_and_data, aes(geometry =geometry))+ geom_sf()
+
+#Homicide map, not looking that good
+ggplot(map_and_data)+
+  geom_sf(aes(geometry =geometry, fill=Total))
+
+```
+
+```{r}
+#Mexico homicide map, looking better
+ggplot(map_and_data)+
+  geom_sf(aes(geometry =geometry, fill=Total))+
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43")
+
+
+```
+
+
+```{r}
+library(spData)
+
+map_sf <- st_as_sf(map_and_data)
+
+tm_shape(map_sf)+
+  tm_polygons("Total", id="Entidad", palette="Greens")
+
+
+
+```
+
+
+
+
+
+```{r}
+
+#created an interactive homicide map to better display information
+tmap_mode("view")
+tmap_last()
+
+```
+
+
+```{r}
+
+#function to save map
+
+# homicide_map <- tmap_last()
+
+# tmap_save(homicide_map, "homicide_map.html")
+
+```
+

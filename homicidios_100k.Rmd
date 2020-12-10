@@ -1,0 +1,75 @@
+---
+title: "homicides_per_100k"
+author: "Roberto Quijano"
+date: "11/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sf)
+library(ggplot2)
+library(tmap)
+library(tmaptools)
+library(leaflet)
+library(dplyr)
+
+#import csv with official population per state and correct column name
+poblacion <- read.csv("poblacion_inegi.csv", encoding = "UTF-8") %>% rename(Entidad = X.U.FEFF.Entidad)
+
+#join homicidios_2020 df with poblacion df
+homicidios_pop <- inner_join(homicidios_2020, poblacion)
+
+#add column calculating murder rate per 100k
+homicidios_pop$'Tasa_100k' <- round(homicidios_pop$Total*100000/homicidios_pop$Poblacion,2)
+
+#change order of last two columns to prepare df for join
+homicidios_100k <- homicidios_pop[c(1,2,3,4,5,7,8,6)]
+
+
+```
+
+```{r}
+#join homicidios_pop, mxmap
+map_and_data_100k <- inner_join(homicidios_100k, mxmap)
+
+map_and_data_100k <- tibble(map_and_data_100k)
+
+ggplot(map_and_data_100k)+
+  geom_sf(aes(geometry =geometry, fill=Tasa_100k))+
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43")
+
+
+
+```
+
+
+```{r}
+map100k_sf <- st_as_sf(map_and_data_100k)
+
+tm_shape(map100k_sf)+
+  tm_polygons("Tasa_100k", id="Entidad", palette="Greens")
+```
+
+
+```{r}
+# same map as previous script but contemplating a homicide rate per 100 k
+
+tmap_mode("view")
+tmap_last()
+```
+
+
+```{r}
+
+#function to save map
+
+# homicide100k_map <- tmap_last()
+
+# tmap_save(homicide100k_map, "homicide100k_map.html")
+
+```
+

@@ -1,0 +1,40 @@
+---
+title: "Final Report"
+author: "Roberto Quijano"
+date: "12/7/2020"
+output: html_document
+---
+
+
+A geospatial analysis of Mexico's crime rate from 2015-2020
+
+Over the last two decades, Mexico's crime rates have been increasing at worrying levels. The Felipe Calderon (2006-2012) administration implemented an offensive strategy against organized crime supported by the United States government through the Merida Initiative. Said strategy sought to utilize the use of military force in order to contain violence in specific regions of the country. From 2015 to 2020, certain regions have seen decreases in crime rates (Tamaulipas, Baja California Sur), while others (Baja California, Guanajuato) have seen significant increases. The objective of this report is to illustrate the utility that the crime_year and crime_year_100k function have in displaying crime rate information across Mexico's 32 states over time.
+
+Data was collected from the Executive Secretariat of the National Public Safety System (Secretariado Ejecutivo del Sistema Nacional de Seguridad Pública). Every month, the Executive Secretariat updates the Records of State Crime Incidence (Cifras de Indidencia Delictiva Estatal) with information provided by state public safety departments in all 32 states. This project utilized this monthly report as its main source of data given its reliability and accuracy.
+Initially, this project only intended to present information on homicide rates across states. Thus, the first script focused on mapping homicide counts per state and the second script calculated the homicide rate per 100,000 citizens. However, before making any mapping the data was cleaned in order to prepare it for any further analysis.
+
+First, the “homicidos” script calculates the homicide counts across states in 2020. Thus, the data was filtered and cleaned into an organized data frame that only contemplates homicides recorded in 2020. The report fills information of future months with NA values, so they were replaced with zeroes for organizing purposes. Then, a new column contemplating state codes was added, such codes match the ones included in the Mexican territory shapefile used for the mapping.
+
+The join function was utilized to join the data frame with the shapefile containing the Mexican territory shapefile. Thereon, several mappings were done to plot the data just to test which one would generate a clean and easy-to-read map. Finally, it was decided that an interactive map from the spData library would be the best choice given its user-friendly nature. Said map indicates that the four states with the most homicides are Guanajuato (2,844), Baja California (2,152), State of Mexico (2,070), and Chihuahua (2,004). Nonetheless, plotting the total count of homicides can present information that is not properly nuanced (excludes total population); thus, estimating the homicide rate per 100,000 population seemed like the optimal next step.
+
+The second script “homicidios_100k” replicates the same steps done for the data analysis in the “homicidos” script with one important addition: adding total population per state and homicide rate per 100,000 population. Population data was collected from the Instituto Nacional de Estadística y Geografía (INEGI), this government agency is responsible for conducting population census every ten years. In this case, their most recent census was done in 2010, so data from this particular year was used for this project. It must be stated that INEGI was conducting its 2020 census, but its results have been delayed given the ongoing pandemic.
+
+Thus, a new column was added to calculate the homicide rate per 100,000 population, the following formula was used: total homicides divided by total population. The resulting rate provides a better image of the homicide crisis per state. The top four states with the highest homicide rate per 100,000 population in 2020 are: Colima (69.48), Baja California (68.21), Chihuahua (58.83), and Guanajuato (51.84).
+
+Originally, the project only intended to plot information on homicide rates in the year 2020; however, I understood the potential that these tools have for deeper analysis of other crime across years. In this sense, the third script “crime_year_function” utilizes the same thought process that was used for the first two scripts. Its main purpose is to construct two functions (one for total count per state, another for 100,000 population rate) that require two arguments: crime and year. Thus, users are required to enter the specific crime and year they want information about. The result of running these functions is an interactive map precisely plotting this information. 
+
+Once these two functions were operational and running, it was time to conduct some simple geospatial analysis to illustrate crime trends over time. Specifically, I focused on how kidnapping rates have evolved over the past five years in Tamaulipas. It must be noted that the data in the functions only covers from 2015-2020, which for my purposes was enough to do some initial analysis. 
+
+Tamaulipas has been the epicenter of the War on Drugs on the northeastern front. Its privileged location in the United States-Mexico border and abundant natural resources have made it the ideal place for organized crime to conduct its operations. Tamaulipas was home to the Cartel del Golfo, one of Mexico’s oldest crime syndicates, who controlled the illegal heroin market in the United States for several decades. Upon its splintering in the nineties, Golfo fragmented into several cells; however, its armed unit consisting of former Mexican army members, known as Los Zetas, prevailed and assumed control over the state. Ever since, Tamaulipas has been essentially a war zone were extremely high crime rates have terrorized the local population. Nonetheless, as Los Zetas were weakened by Mexican authorities so did crime rates slowly throughout the years. Specifically, one crime that terrorized the Tamaulipas population for years was kidnapping.
+
+In 2015, Tamaulipas had a kidnapping rate of 7.04 per 100,000 population (155 count with a population of 3’268,554). This rate and count are alarming considering that states comparable in terms of population, location, and crime rate such as Baja California recorded a 0.35 kidnapping rate (just 14 with a population of 3’155,070). Tamaulipas had a kidnapping rate 20 times larger than Baja California, the average state has an even lower kidnapping rate than Baja California.
+In 2016, the kidnapping rate decreased in Tamaulipas to 4.74, a 50% reduction in one year. The rate in 2017 slightly decreased to 4.28; 3.33 in 2018; 0.95 in 2019; and by October 2020 the rate had decreased to 0.58. In five years, Mexican authorities have reduced the crime rate from 7.04 to 0.58, a 91% decrease. Even if mission accomplished cannot be claimed in Tamaulipas, reducing a menacing and notorious crime such as kidnapping is formidable progress. 
+
+In 2015, 73.6% of citizens felt unsafe in their municipality. In 2019, 66.6% of residents in Tamaulipas felt unsafe in their municipality. People feel safer today than 5 years ago. Without claiming association, the reduction in the kidnapping rate helps illustrate how citizens in Tamaulipas feel safer. Considering this, the Mexican government has the task of maintaining the current historic low crime rates in Tamaulipas and implementing a long-term strategy that reduces them to a minimum. On the other, the Tamaulipas case study may assist other states such as Morelos (2.93) and Zacatecas (2.15) that have seen their kidnapping rates increase substantially in recent years.
+
+In conclusion, the two functions that were generated in this project will assist policymakers in their task of understanding crime rates geographically and over time. The user-friendly character of the interactive maps will help users display accurate and simple information about crimes in specific years. In this case, I used the evolution of the kidnapping rate in Tamaulipas to illustrate the type of analyses that can be conducted using these tools. 
+
+
+
+
+

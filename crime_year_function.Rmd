@@ -1,0 +1,144 @@
+---
+title: "crime year function"
+author: "Roberto Quijano"
+date: "11/27/2020"
+output: html_document
+---
+
+```{r}
+library(sf)
+library(ggplot2)
+library(tmap)
+library(tmaptools)
+library(leaflet)
+library(dplyr)
+library(spData)
+
+
+options(scipen = 999)
+
+#mexdata contain crime records from 2015-2020 per state
+mexdata <- read.csv("IDEFC_NM_oct2020.csv")
+
+
+#print the crimes that are recorded in mexdata
+delitos <- unique(mexdata$Subtipo.de.delito)
+delitos
+
+#print the years that are recorded in mexdata (2015-2020)
+temporada <- unique(mexdata$Año)
+temporada
+```
+
+
+```{r}
+#function that calculates crime for year entered
+
+
+crime_year <- function(crime, year){
+  
+  #  function cleans mexdata, csv with all registered crimes per state per year
+  
+  mexdata <- read.csv("IDEFC_NM_oct2020.csv", stringsAsFactors = FALSE)
+  mexdata <- subset(mexdata, mexdata$Año == year & mexdata$Subtipo.de.delito == crime)
+  mexdata[is.na(mexdata)] <- 0
+  mexdata$Total <- rowSums(sapply(mexdata[,8:19], as.numeric))
+  mexdata <- mexdata[-c(8:19)]
+  mexdata <- mexdata %>% group_by(Año, Clave_Ent, Entidad, Subtipo.de.delito) %>% summarise(Total=sum(Total))
+  mexdata$FIPS_ADMIN <- c("MX01", "MX02", "MX03", "MX04", "MX07", "MX08", "MX05", "MX06", "MX09", "MX10", "MX11", "MX12", "MX13", "MX14", "MX15", "MX16", "MX17", "MX18", "MX19", "MX20", "MX21", "MX22", "MX23", "MX24", "MX25", "MX26", "MX27", "MX28", "MX29", "MX30", "MX31", "MX32")
+  
+  #join mexdata and poblacion
+  
+  mxmap <- st_read("mexico_shp/mexstates.shp", stringsAsFactors=FALSE)
+  map_and_data <- inner_join(mexdata, mxmap)
+  map_and_data <- tibble(map_and_data)
+  
+  
+  #plot of map
+  
+  map_sf <- st_as_sf(map_and_data)
+  mx_sf <- tm_shape(map_sf)+tm_polygons("Total", id="Entidad", palette="Greens")
+
+  #interactive map
+  
+  tmap_mode("view")
+  tmap_last()
+
+
+  return(mx_sf)
+}
+
+```
+
+```{r}
+crime_year("Secuestro", "2015")
+```
+
+
+
+```{r}
+
+#function that calculates crime rate per 100k for year entered 
+
+
+crime_year_per100k <- function(crime, year){
+  
+  #  function cleans mexdata, csv with all registered crimes per state per year
+  
+  mexdata <- read.csv("IDEFC_NM_oct2020.csv", stringsAsFactors = FALSE)
+  mexdata <- subset(mexdata, mexdata$Año == year & mexdata$Subtipo.de.delito == crime)
+  mexdata[is.na(mexdata)] <- 0
+  mexdata$Total <- rowSums(sapply(mexdata[,8:19], as.numeric))
+  mexdata <- mexdata[-c(8:19)]
+  mexdata <- mexdata %>% group_by(Año, Clave_Ent, Entidad, Subtipo.de.delito) %>% summarise(Total=sum(Total))
+  mexdata$FIPS_ADMIN <- c("MX01", "MX02", "MX03", "MX04", "MX07", "MX08", "MX05", "MX06", "MX09", "MX10", "MX11", "MX12", "MX13", "MX14", "MX15", "MX16", "MX17", "MX18", "MX19", "MX20", "MX21", "MX22", "MX23", "MX24", "MX25", "MX26", "MX27", "MX28", "MX29", "MX30", "MX31", "MX32")
+  
+  #poblacion contain DF with census population per state
+  
+  poblacion <- read.csv("poblacion_inegi.csv", encoding = "UTF-8") %>% rename(Entidad = X.U.FEFF.Entidad)
+  
+  #join mexdata and poblacion
+  
+  mexdata <- inner_join(mexdata, poblacion)
+  
+  #add column that calculates rate/100k
+  
+  mexdata$'Tasa_100k' <- round(mexdata$Total*100000/mexdata$Poblacion,2)
+  
+  #change order of last two columns to prepare df for join
+  
+  mexdata <- mexdata[c(1,2,3,4,5,7,8,6)]
+
+
+  
+  #mxmap contains the SHP joined to mexdata to plot map
+  
+  mxmap <- st_read("mexico_shp/mexstates.shp", stringsAsFactors=FALSE)
+  
+  #map_and_data is the DF used to plot map
+  
+  map_and_data <- inner_join(mexdata, mxmap)
+  map_and_data <- tibble(map_and_data)
+  
+  #plot of map
+  map_sf <- st_as_sf(map_and_data)
+  mx_sf <- tm_shape(map_sf)+tm_polygons("Tasa_100k", id="Entidad", palette="Greens")
+  
+  #interactive map
+  tmap_mode("view")
+  tmap_last()
+
+
+  return(mx_sf)
+}
+
+
+```
+
+```{r}
+crime_year_per100k("Secuestro", "2015")
+```
+
+
+```{r}
+```
