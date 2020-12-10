@@ -1,6 +1,6 @@
 # mexico-crime-maps
 
-- This repository contains my final project for my Introduction to Data Science with R class. 
+- This repository contains the final project for my Introduction to Data Science with R class. 
 
 - Crime data was obtained from the crime incidence report updated monthly by the Secretariado Ejecutivo del Sistema Nacional de Seguridad Pública. 
 
